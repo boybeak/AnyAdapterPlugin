@@ -2,29 +2,20 @@ package com.github.boybeak.adapter.plugin.action
 
 import com.github.boybeak.adapter.plugin.CreateDialog
 import com.intellij.lang.Language
-import com.intellij.largeFilesEditor.editor.EditorManager
-import com.intellij.largeFilesEditor.editor.EditorManagerImpl
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
-import org.jetbrains.kotlin.asJava.classes.KtUltraLightClass
 import org.jetbrains.kotlin.idea.core.getPackage
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
-import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.psi.KtClass
 import java.io.File
 import java.util.*
-import kotlin.collections.ArrayList
 
 class CreateItemAndHolderAction : AnAction() {
 
@@ -59,8 +50,8 @@ class CreateItemAndHolderAction : AnAction() {
         }
         val layoutName = layout.substring(0, layout.lastIndexOf(" - "))
 
-        createItem(project, dir, sourcePkg, sourceName, itemPkg, itemName, layoutName, holderPkg, holderName)
         createHolder(project, dir, itemPkg, itemName, holderPkg, holderName)
+        createItem(project, dir, sourcePkg, sourceName, itemPkg, itemName, layoutName, holderPkg, holderName)
     }
 
     private fun createItem(project: Project, directory: PsiDirectory, sourcePkg: String, sourceName: String,
@@ -179,9 +170,9 @@ class CreateItemAndHolderAction : AnAction() {
             val targetDir = obtainTargetDir(project, directory, holderPkg)
             targetDir.add(psiFile)
 
-            val itemFile = File(File(targetDir.virtualFile.path), fileName)
-            val itemVF = LocalFileSystem.getInstance().findFileByIoFile(itemFile)
-            OpenFileDescriptor(project, itemVF!!, 0).navigateInEditor(project, false)
+            val holderFile = File(File(targetDir.virtualFile.path), fileName)
+            val holderVF = LocalFileSystem.getInstance().findFileByIoFile(holderFile)
+            OpenFileDescriptor(project, holderVF!!, 0).navigateInEditor(project, false)
         }
     }
 

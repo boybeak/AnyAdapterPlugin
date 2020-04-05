@@ -16,7 +16,7 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'kotlin'
 
 group 'com.github.boybeak.adapter.plugin'
-version '0.1.3'
+version '0.1.4'
 
 sourceCompatibility = 1.8
 
