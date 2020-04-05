@@ -45,7 +45,7 @@ class CreateDialog(
     init {
         this.init()
         title = "Test DialogWrapper"
-        this.setResizable(false)
+//        this.setResizable(false)
         getButton(okAction)?.apply {
             isEnabled = false
             addActionListener {
@@ -239,7 +239,7 @@ class CreateDialog(
 
     private fun refreshHolderErrorTip() {
         val holder = holderTextField.text
-        holderTextField.text = if (!isValidPackage(holder)) {
+        holderErrorLabel.text = if (!isValidPackage(holder)) {
             "Not valid package or name."
         } else if (isHolderExists()) {
             "The holder file already exists."

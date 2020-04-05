@@ -2,16 +2,26 @@ package com.github.boybeak.adapter.plugin.action
 
 import com.github.boybeak.adapter.plugin.CreateDialog
 import com.intellij.lang.Language
+import com.intellij.largeFilesEditor.editor.EditorManager
+import com.intellij.largeFilesEditor.editor.EditorManagerImpl
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.fileEditor.FileEditor
+import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.*
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.kotlin.asJava.classes.KtLightClassForFacade
+import org.jetbrains.kotlin.asJava.classes.KtUltraLightClass
 import org.jetbrains.kotlin.idea.core.getPackage
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import org.jetbrains.kotlin.idea.util.application.executeWriteCommand
+import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.psi.KtClass
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -40,7 +50,6 @@ class CreateItemAndHolderAction : AnAction() {
             Pair(substring(0, lastDotIdx), substring(lastDotIdx + 1))
         }
         val (itemPkg, itemName) = with(item) {
-            println("this=${this}")
             val lastDotIdx = this.lastIndexOf('.')
             Pair(substring(0, lastDotIdx), substring(lastDotIdx + 1))
         }
@@ -60,21 +69,37 @@ class CreateItemAndHolderAction : AnAction() {
 
         val sourceClz = JavaPsiFacade.getInstance(project).findClass("$sourcePkg.$sourceName",
             GlobalSearchScope.allScope(project)) ?: return
+
+        val ne = sourceClz.navigationElement
+        if (ne !is KtClass) {
+            return
+        }
+
         val sb = StringBuilder()
 
         if (isBasicTypes("$sourcePkg.$sourceName")) {
             sb.append("source() == os")
         } else {
-            val publicFields = sourceClz.allFields.run {
+            val publicFields = sourceClz.allFields/*.run {
                 val publicFields = ArrayList<PsiField>()
                 for (f in this) {
-                    val ml = f.modifierList ?: continue
-                    if (ml.hasExplicitModifier("public") || ml.hasExplicitModifier("protected")) {
+                    if (ne.isData()) {
                         publicFields.add(f)
+                    } else {
+                        val ml = f.modifierList ?: continue
+
+                        println("-- ${f.name} --")
+                        println("hasExplicitModifier.public=${ml.hasExplicitModifier("public")}")
+                        println("hasExplicitModifier.protected=${ml.hasExplicitModifier("protected")}")
+                        println("hasExplicitModifier.internal=${ml.hasExplicitModifier("internal")}")
+                        println("hasExplicitModifier.private=${ml.hasExplicitModifier("private")}")
+                        if (ml.hasExplicitModifier("public") || ml.hasExplicitModifier("protected")) {
+                            publicFields.add(f)
+                        }
                     }
                 }
                 publicFields
-            }
+            }*/
             if (publicFields.isEmpty()) {
                 sb.append("source() == os")
             } else {
@@ -117,12 +142,16 @@ class CreateItemAndHolderAction : AnAction() {
             append("}")
         }
         project.executeWriteCommand("New Item", this) {
+            val fileName = "${itemName}.kt"
             val psiFile = PsiFileFactory.getInstance(project)
-                .createFileFromText("${itemName}.kt", Language.findLanguageByID("kotlin")!!, code.toString(), true, false)
-
+                .createFileFromText(fileName, Language.findLanguageByID("kotlin")!!, code.toString(), true, false)
             val targetDir = obtainTargetDir(project, directory, itemPkg)
 
             targetDir.add(psiFile)
+
+            val itemFile = File(File(targetDir.virtualFile.path), fileName)
+            val itemVF = LocalFileSystem.getInstance().findFileByIoFile(itemFile)
+            OpenFileDescriptor(project, itemVF!!, 0).navigateInEditor(project, true)
         }
 
     }
@@ -144,10 +173,15 @@ class CreateItemAndHolderAction : AnAction() {
             append("}")
         }
         project.executeWriteCommand("New Holder", this) {
+            val fileName = "${holderName}.kt"
             val psiFile = PsiFileFactory.getInstance(project)
-                .createFileFromText("${holderName}.kt", Language.findLanguageByID("kotlin")!!, codeSB.toString(), true, false)
+                .createFileFromText(fileName, Language.findLanguageByID("kotlin")!!, codeSB.toString(), true, false)
             val targetDir = obtainTargetDir(project, directory, holderPkg)
             targetDir.add(psiFile)
+
+            val itemFile = File(File(targetDir.virtualFile.path), fileName)
+            val itemVF = LocalFileSystem.getInstance().findFileByIoFile(itemFile)
+            OpenFileDescriptor(project, itemVF!!, 0).navigateInEditor(project, false)
         }
     }
 

@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.github.boybeak.adapter.plugin</id>
     <name>AnyAdapterPlugin</name>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <vendor email="boybeak@gmail.com"
             url="https://github.com/boybeak">Gao Yunfei</vendor>
     <description>
