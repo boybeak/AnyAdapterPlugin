@@ -1,6 +1,7 @@
 package com.github.boybeak.adapter.plugin.action
 
 import com.github.boybeak.adapter.plugin.CreateDialog
+import com.intellij.ide.util.DirectoryUtil
 import com.intellij.lang.Language
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -98,6 +99,9 @@ class CreateItemAndHolderAction : AnAction() {
                     if (i > 0) {
                         sb.append(" && ")
                     }
+                    if (i % 3 == 0 && i < publicFields.size - 1) {
+                        sb.append('\n')
+                    }
                     sb.append("source().${field.name} == os.${field.name}")
                 }
             }
@@ -137,7 +141,7 @@ class CreateItemAndHolderAction : AnAction() {
             val psiFile = PsiFileFactory.getInstance(project)
                 .createFileFromText(fileName, Language.findLanguageByID("kotlin")!!, code.toString(), true, false)
             val targetDir = obtainTargetDir(project, directory, itemPkg)
-
+            DirectoryUtil.mkdirs(targetDir.manager, targetDir.virtualFile.path)
             targetDir.add(psiFile)
 
             val itemFile = File(File(targetDir.virtualFile.path), fileName)
@@ -168,6 +172,7 @@ class CreateItemAndHolderAction : AnAction() {
             val psiFile = PsiFileFactory.getInstance(project)
                 .createFileFromText(fileName, Language.findLanguageByID("kotlin")!!, codeSB.toString(), true, false)
             val targetDir = obtainTargetDir(project, directory, holderPkg)
+            DirectoryUtil.mkdirs(targetDir.manager, targetDir.virtualFile.path)
             targetDir.add(psiFile)
 
             val holderFile = File(File(targetDir.virtualFile.path), fileName)
