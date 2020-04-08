@@ -100,10 +100,10 @@ class CreateItemAndHolderAction : AnAction() {
             } else {
                 for ((i, field) in publicFields.withIndex()) {
                     if (i > 0) {
+                        if (i % 3 == 0 && i < publicFields.size - 1) {
+                            sb.append("\n\t\t\t\t")
+                        }
                         sb.append(" && ")
-                    }
-                    if (i % 3 == 0 && i < publicFields.size - 1) {
-                        sb.append('\n')
                     }
                     sb.append("source().${field.name} == os.${field.name}")
                 }
