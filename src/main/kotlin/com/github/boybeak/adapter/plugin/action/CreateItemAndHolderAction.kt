@@ -10,6 +10,7 @@ import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.*
+import com.intellij.psi.impl.source.PsiClassImpl
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.kotlin.idea.core.getPackage
 import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
@@ -62,11 +63,13 @@ class CreateItemAndHolderAction : AnAction() {
         val sourceClz = JavaPsiFacade.getInstance(project).findClass("$sourcePkg.$sourceName",
             GlobalSearchScope.allScope(project)) ?: return
 
-        val ne = sourceClz.navigationElement
-        if (ne !is KtClass) {
+//        val ne = sourceClz.navigationElement
+        /*if (ne !is KtClass) {
+            if (ne is PsiClassImpl) {
+            }
             return
         }
-
+*/
         val sb = StringBuilder()
 
         if (isBasicTypes("$sourcePkg.$sourceName")) {
