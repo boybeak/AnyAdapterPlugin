@@ -44,7 +44,7 @@ class CreateDialog(
 
     init {
         this.init()
-        title = "Test DialogWrapper"
+        title = "New Item&Holder"
 //        this.setResizable(false)
         getButton(okAction)?.apply {
             isEnabled = false
